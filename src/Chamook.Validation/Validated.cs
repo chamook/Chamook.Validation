@@ -31,3 +31,14 @@ public readonly struct Validated<TValid, TError>
         Func<TError, TResult> ifError) =>
         _isValid ? ifValid(_validValue) : ifError(_errorValue);
 }
+
+public static class ValidatedExtensions
+{
+    public static Validated<TNew, TError> Map<TValid, TNew, TError>(
+        this Validated<TValid, TError> validated,
+        Func<TValid, TNew> mapper) =>
+        validated.Match(
+            ifValid: v => Validated<TNew, TError>.Valid(mapper(v)),
+            ifError: e => Validated<TNew, TError>.Error(e));
+
+}
