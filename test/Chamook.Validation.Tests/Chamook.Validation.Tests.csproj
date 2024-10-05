@@ -20,4 +20,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Chamook.Validation\Chamook.Validation.csproj" />
+  </ItemGroup>
+
 </Project>
