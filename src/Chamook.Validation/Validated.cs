@@ -71,6 +71,10 @@ public readonly struct Validated<TValid, TError>
 
 public static class ValidatedExtensions
 {
+    // Regular map and mapError - allow applying a transformation function
+    // to the respective value inside a Validated object and short circuit if
+    // it's in the other state
+
     public static Validated<TNew, TError> Map<TValid, TNew, TError>(
         this Validated<TValid, TError> validated,
         Func<TValid, TNew> mapper) =>
@@ -78,4 +82,158 @@ public static class ValidatedExtensions
             ifValid: v => Validated<TNew, TError>.Valid(mapper(v)),
             ifError: e => Validated<TNew, TError>.Error(e));
 
+    public static Validated<TValid, TNewError> MapError<TValid, TError, TNewError>(
+        this Validated<TValid, TError> validated,
+        Func<TError, TNewError> mapper) =>
+        validated.Match(
+            ifValid: v => Validated<TValid, TNewError>.Valid(v),
+            ifError: e => Validated<TValid, TNewError>.Error(mapper(e)));
+
+    // And is for combining two validations - any errors put the whole thing into
+    // an error state, but multiple errors are collected together
+
+    public static Validated<(A, B), List<TError>> And<A, B, TError>(
+        this Validated<A, TError> first,
+        Validated<B, TError> second)
+    {
+        if (first.IsValid && second.IsValid)
+            return Validated<(A, B), List<TError>>.Valid(
+                (first.GetValidValueOrThrow(), second.GetValidValueOrThrow()));
+
+        var errors = new List<TError>(2);
+        if (!first.IsValid)
+            errors.Add(first.GetErrorOrThrow());
+        if (!second.IsValid)
+            errors.Add(second.GetErrorOrThrow());
+
+        return Validated<(A, B), List<TError>>.Error(errors);
+    }
+
+    public static Validated<(A, B), List<TError>> And<A, B, TError>(
+        this Validated<A, List<TError>> first,
+        Validated<B, TError> second)
+    {
+        if (first.IsValid && second.IsValid)
+            return Validated<(A, B), List<TError>>.Valid(
+                (first.GetValidValueOrThrow(), second.GetValidValueOrThrow()));
+
+        var errors = new List<TError>();
+        if (!first.IsValid)
+            errors.Concat(first.GetErrorOrThrow());
+        if (!second.IsValid)
+            errors.Add(second.GetErrorOrThrow());
+
+        return Validated<(A, B), List<TError>>.Error(errors);
+    }
+
+    public static Validated<(A, B), List<TError>> And<A, B, TError>(
+        this Validated<A, TError> first,
+        Validated<B, List<TError>> second)
+    {
+        if (first.IsValid && second.IsValid)
+            return Validated<(A, B), List<TError>>.Valid(
+                (first.GetValidValueOrThrow(), second.GetValidValueOrThrow()));
+
+        var errors = new List<TError>();
+        if (!first.IsValid)
+            errors.Add(first.GetErrorOrThrow());
+        if (!second.IsValid)
+            errors.Concat(second.GetErrorOrThrow());
+
+        return Validated<(A, B), List<TError>>.Error(errors);
+    }
+
+    public static Validated<(A, B), List<TError>> And<A, B, TError>(
+        this Validated<A, List<TError>> first,
+        Validated<B, List<TError>> second)
+    {
+        if (first.IsValid && second.IsValid)
+            return Validated<(A, B), List<TError>>.Valid(
+                (first.GetValidValueOrThrow(), second.GetValidValueOrThrow()));
+
+        var errors = new List<TError>();
+        if (!first.IsValid)
+            errors.Concat(first.GetErrorOrThrow());
+        if (!second.IsValid)
+            errors.Concat(second.GetErrorOrThrow());
+
+        return Validated<(A, B), List<TError>>.Error(errors);
+    }
+
+    // Some fancy overloads for map to provide a nicer API when working
+    // with combined objects
+    // This is useful for building more complicated types out of the
+    // small building blocks - e.g. a record made up of several NonEmptyStrings
+
+    public static Validated<TNew, TError> Map<TNew, TError, A, B, C>(
+        this Validated<((A, B), C), TError> validated,
+        Func<A, B, C, TNew> mapper) =>
+        validated.Map(x =>
+        {
+            var (a, b, c) = x.Flatten();
+            return mapper(a, b, c);
+        });
+
+    public static Validated<TNew, TError> Map<TNew, TError, A, B, C, D>(
+        this Validated<(((A, B), C), D), TError> validated,
+        Func<A, B, C, D, TNew> mapper) =>
+        validated.Map(x =>
+        {
+            var (a, b, c, d) = x.Flatten();
+            return mapper(a, b, c, d);
+        });
+
+    public static Validated<TNew, TError> Map<TNew, TError, A, B, C, D, E>(
+        this Validated<((((A, B), C), D), E), TError> validated,
+        Func<A, B, C, D, E, TNew> mapper) =>
+        validated.Map(x =>
+        {
+            var (a, b, c, d, e) = x.Flatten();
+            return mapper(a, b, c, d, e);
+        });
+
+    public static Validated<TNew, TError> Map<TNew, TError, A, B, C, D, E, F>(
+        this Validated<(((((A, B), C), D), E), F), TError> validated,
+        Func<A, B, C, D, E, F, TNew> mapper) =>
+        validated.Map(x =>
+        {
+            var (a, b, c, d, e, f) = x.Flatten();
+            return mapper(a, b, c, d, e, f);
+        });
+
+    public static Validated<TNew, TError> Map<TNew, TError, A, B, C, D, E, F, G>(
+        this Validated<((((((A, B), C), D), E), F), G), TError> validated,
+        Func<A, B, C, D, E, F, G, TNew> mapper) =>
+        validated.Map(x =>
+        {
+            var (a, b, c, d, e, f, g) = x.Flatten();
+            return mapper(a, b, c, d, e, f, g);
+        });
+
+    public static Validated<TNew, TError> Map<TNew, TError, A, B, C, D, E, F, G, H>(
+        this Validated<(((((((A, B), C), D), E), F), G), H), TError> validated,
+        Func<A, B, C, D, E, F, G, H, TNew> mapper) =>
+        validated.Map(x =>
+        {
+            var (a, b, c, d, e, f, g, h) = x.Flatten();
+            return mapper(a, b, c, d, e, f, g, h);
+        });
+
+    public static Validated<TNew, TError> Map<TNew, TError, A, B, C, D, E, F, G, H, I>(
+        this Validated<((((((((A, B), C), D), E), F), G), H), I), TError> validated,
+        Func<A, B, C, D, E, F, G, H, I, TNew> mapper) =>
+        validated.Map(x =>
+        {
+            var (a, b, c, d, e, f, g, h, i) = x.Flatten();
+            return mapper(a, b, c, d, e, f, g, h, i);
+        });
+
+    public static Validated<TNew, TError> Map<TNew, TError, A, B, C, D, E, F, G, H, I, J>(
+        this Validated<(((((((((A, B), C), D), E), F), G), H), I), J), TError> validated,
+        Func<A, B, C, D, E, F, G, H, I, J, TNew> mapper) =>
+        validated.Map(x =>
+        {
+            var (a, b, c, d, e, f, g, h, i, j) = x.Flatten();
+            return mapper(a, b, c, d, e, f, g, h, i, j);
+        });
 }
