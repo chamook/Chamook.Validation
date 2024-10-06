@@ -1,6 +1,17 @@
 ﻿namespace Chamook.Validation;
 
 ///<summary>
+///An exception thrown when trying to directly access one of the potential values
+///in a Validated type when it is in the wrong state.
+///</summary>
+public class ValidationException : Exception
+{
+    public ValidationException() : base() {}
+    public ValidationException(string message) : base(message) { }
+    public ValidationException(string message, Exception inner) : base(message, inner) {}
+}
+
+///<summary>
 ///Represents both potential outcomes from a validation operation.
 ///Either a Valid value or an Error.
 ///</summary>
@@ -8,19 +19,19 @@ public readonly struct Validated<TValid, TError>
 {
     private readonly TValid _validValue { get; init; }
     private readonly TError _errorValue { get; init; }
-    private readonly bool _isValid { get; init; }
+    public readonly bool IsValid { get; init; }
 
     ///<summary>
     ///Create a new Validated instance for a successfully validated type
     ///</summary>
     public static Validated<TValid, TError> Valid(TValid valid) =>
-        new Validated<TValid, TError>() { _validValue = valid, _isValid = true };
+        new Validated<TValid, TError>() { _validValue = valid, IsValid = true };
 
     ///<summary>
     ///Create a new Validated instance for an error
     ///</summary>
     public static Validated<TValid, TError> Error(TError error) =>
-        new Validated<TValid, TError>() { _errorValue = error, _isValid = false };
+        new Validated<TValid, TError>() { _errorValue = error, IsValid = false };
 
     ///<summary>
     ///Provide functions to handle both potential cases of a Validated object
@@ -29,7 +40,33 @@ public readonly struct Validated<TValid, TError>
     public TResult Match<TResult>(
         Func<TValid, TResult> ifValid,
         Func<TError, TResult> ifError) =>
-        _isValid ? ifValid(_validValue) : ifError(_errorValue);
+        IsValid ? ifValid(_validValue) : ifError(_errorValue);
+
+    ///<summary>
+    ///Attempt to extract the valid value from this Validated instance, throw if it contains an
+    ///error.
+    ///</summary>
+    ///<remarks>
+    ///You should probably use Match instead of this.
+    ///</remarks>
+    public TValid GetValidValueOrThrow() =>
+        IsValid
+        ? _validValue
+        : throw new ValidationException(
+            "Attempted to retrieve a valid value from a Validated object that contained an error");
+
+    ///<summary>
+    ///Attempt to extract the error from this Validated instance, throw if it contains a
+    ///valid value.
+    ///</summary>
+    ///<remarks>
+    ///You should probably use Match instead of this.
+    ///</remarks>
+    public TError GetErrorOrThrow() =>
+        (!IsValid)
+        ? _errorValue
+        : throw new ValidationException(
+            "Attempted to retrieve an error from a Validated object that contained a valid value");
 }
 
 public static class ValidatedExtensions
