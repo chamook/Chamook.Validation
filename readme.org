@@ -1,0 +1,96 @@
+#+title: Chamook.Validation
+
+This library helps you build types that protect their invariants by only allowing valid versions
+to be constructed.
+
+* How-to
+
+** Namespace
+
+#+begin_src csharp
+using Chamook.Validation;
+#+end_src
+
+** Constrained Type
+
+A Constrained Type is a handy way to wrap an existing type with a simple validation rule.
+Validation rules are implemented as a class that implements the =IConstraint<T>= interface.
+
+#+begin_src csharp
+public interface IConstraint<T>
+{
+    bool IsValid(T candidate);
+}
+#+end_src
+
+The single method =IsValid= defines validation rules for the type to be tested =T=.
+
+Note that =ConstrainedType= requires an =IConstraint= to have a parameterless constructor.
+
+With a constraint defined, a class can inherit from =ConstrainedType=, fill in the type
+parameters, and implement 2 methods to be complete. See the example below of =NonEmptyString=:
+
+#+begin_src csharp
+///<summary>
+///A string that can't be empty or whitespace
+///</summary>
+public sealed class NonEmptyString: ConstrainedType<NonEmptyString.Constraint, string>
+{
+    public sealed class Constraint : IConstraint<string>
+    {
+        public Constraint() {}
+        public bool IsValid(string candidate) => !string.IsNullOrWhiteSpace(candidate);
+    }
+
+    private NonEmptyString(string valid) : base(valid) {}
+    public new static Validated<NonEmptyString, TError> Validate<TError>(
+        string? candidate,
+        Func<TError> errorCreator) =>
+        DoValidate(candidate ?? "", errorCreator).Map(x => new NonEmptyString(x));
+}
+#+end_src
+
+The constructor for =NonEmptyString= just calls the base constructor with a valid value.
+
+The static =Validate= method passes through to the =DoValidate= method on the base class
+and maps the type of the result to =NonEmptyString=.
+
+Note that =NonEmptyString= also handles =null= input values by coalescing to an empty
+string before validating (which will of course result in an error) - but handling null
+input is not strictly necessary.
+
+=Validate= also requires that a simple function to create an appropriate error response is
+provided - this is to allow for better error messages in practice.
+
+** Combinations
+
+Validation results can be combined together using the =And= method. This allows for many
+individual validation steps to be performed when attempting to build a larger class. Either
+all errors are collected or the =Map= method can be used to build the final result type.
+See the =Sample= below:
+
+#+begin_src csharp
+public sealed record Sample(
+    NonEmptyString One,
+    NonEmptyString Two,
+    NonEmptyString Three)
+{
+    public static Validated<Sample, string> Validate(
+        string? one,
+        string? two,
+        string? three) =>
+        NonEmptyString.Validate(one, () => "One is required")
+        .And(NonEmptyString.Validate(two, () => "Two is required"))
+        .And(NonEmptyString.Validate(three, () => "Three is required"))
+        .Map((x1, x2, x3) => new Sample(x1, x2, x3))
+        .MapError(x => string.Join(", ", x));
+}
+#+end_src
+
+* Alternatives
+
+If you don't like this way of validating things, maybe [[https://github.com/FluentValidation/FluentValidation/tree/main][FluentValidation ]] is more your speed :blush:
+
+* License
+
+This is licensed under the Apache License 2.0
