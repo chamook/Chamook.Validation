@@ -15,9 +15,9 @@ public sealed class NonEmptyString: ConstrainedType<NonEmptyString.Constraint, s
 
     private NonEmptyString(string valid) : base(valid) {}
     public new static Validated<NonEmptyString, TError> Validate<TError>(
-        string candidate,
+        string? candidate,
         Func<TError> errorCreator) =>
-        DoValidate(candidate, errorCreator).Map(x => new NonEmptyString(x));
+        DoValidate(candidate ?? "", errorCreator).Map(x => new NonEmptyString(x));
 }
 
 ///<summary>
