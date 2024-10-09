@@ -3,12 +3,48 @@
 This library helps you build types that protect their invariants by only allowing valid versions
 to be constructed.
 
+* Installation
+
+#+begin_src shell
+dotnet add package Chamook.Validation
+#+end_src
+
 * How-to
 
 ** Namespace
 
 #+begin_src csharp
 using Chamook.Validation;
+#+end_src
+
+** =Validated<TValid, TError>=
+
+The =Validated= type represents the result of a validation operation. Only one of the values
+(either Valid or Error) can be present.
+
+A new =Validated= object is created using one of the static methods corresponding to states:
+
+#+begin_src csharp
+var valid = Validated<CoolObject, string>.Valid(myCoolObject);
+var invalid = Validated<CoolObject, string>.Error("Not cool enough");
+#+end_src
+
+The recommended way to extract a value is by using the =Match= method which requires a
+function to handle both possiblities:
+
+#+begin_src csharp
+valid.Match(
+    ifValid: v => Console.WriteLine(v.ToString()),
+    ifError: e => Console.WriteLine(e));
+#+end_src
+
+If the handlers return a value, they must both return the same type of value.
+
+#+begin_src csharp
+var outcome =
+    valid.Match(
+        ifValid: v => v.ToString(),
+        ifError: e => e);
 #+end_src
 
 ** Constrained Type
@@ -89,7 +125,9 @@ public sealed record Sample(
 
 * Alternatives
 
-If you don't like this way of validating things, maybe [[https://github.com/FluentValidation/FluentValidation/tree/main][FluentValidation ]] is more your speed :blush:
+💡 If you like to build rules on their own maybe [[https://github.com/FluentValidation/FluentValidation/tree/main][FluentValidation ]] is more your speed
+
+💡 If you're a big fan of annotations, you could try [[https://github.com/DamianEdwards/MiniValidation][MiniValidation]]
 
 * License
 

@@ -42,6 +42,16 @@ public readonly struct Validated<TValid, TError>
         Func<TError, TResult> ifError) =>
         IsValid ? ifValid(_validValue) : ifError(_errorValue);
 
+    public void Match(
+        Action<TValid> ifValid,
+        Action<TError> ifError)
+    {
+        if (IsValid)
+            ifValid(_validValue);
+        else
+            ifError(_errorValue);
+    }
+
     ///<summary>
     ///Attempt to extract the valid value from this Validated instance, throw if it contains an
     ///error.
