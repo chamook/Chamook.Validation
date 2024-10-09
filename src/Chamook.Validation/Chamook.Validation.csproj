@@ -5,6 +5,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <AssemblyTitle>Chamook.Validation</AssemblyTitle>
+    <Version>0.1.1</Version>
+    <Title>Chamook.Validation</Title>
+    <Description>A validation library using types</Description>
+    <Authors>Adam Guest</Authors>
+    <PackageProjectUrl>https://github.com/chamook/Chamook.Validation</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/chamook/Chamook.Validation.git</RepositoryUrl>
+    <AssemblyName>Chamook.Validation</AssemblyName>
+    <PackageId>Chamook.Validation</PackageId>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
 
 </Project>
