@@ -1,5 +1,7 @@
 #+title: Chamook.Validation
 
+[[./logo.png]]
+
 This library helps you build types that protect their invariants by only allowing valid versions
 to be constructed.
 

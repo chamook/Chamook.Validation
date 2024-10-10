@@ -7,7 +7,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <AssemblyTitle>Chamook.Validation</AssemblyTitle>
-    <Version>0.1.2</Version>
+    <Version>0.1.3</Version>
     <Title>Chamook.Validation</Title>
     <Description>A validation library using types</Description>
     <Authors>Adam Guest</Authors>
@@ -19,6 +19,10 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageIcon>logo.png</PackageIcon>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="../../logo.png" Pack="true" PackagePath="/" />
+  </ItemGroup>
 </Project>
