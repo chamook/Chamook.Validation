@@ -127,7 +127,7 @@ public sealed record Sample(
 
 * Alternatives
 
-💡 If you like to build rules on their own maybe [[https://github.com/FluentValidation/FluentValidation/tree/main][FluentValidation ]] is more your speed
+💡 If you like to build rules on their own maybe [[https://github.com/FluentValidation/FluentValidation][FluentValidation]] is more your speed
 
 💡 If you're a big fan of annotations, you could try [[https://github.com/DamianEdwards/MiniValidation][MiniValidation]]
 
