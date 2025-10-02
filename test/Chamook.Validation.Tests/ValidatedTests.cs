@@ -88,4 +88,32 @@ public sealed class ValidatedTests
         Assert.Contains(error1, errors);
         Assert.Contains(error2, errors);
     }
+
+    [Fact]
+    public void AndReturnsMultipleErrors()
+    {
+        var error1 = Guid.NewGuid().ToString();
+        var error2 = Guid.NewGuid().ToString();
+        var error3 = Guid.NewGuid().ToString();
+        var error4 = Guid.NewGuid().ToString();
+        var error5 = Guid.NewGuid().ToString();
+        var error6 = Guid.NewGuid().ToString();
+
+        var result =
+            Validated<Guid, string>.Error(error1)
+            .And(Validated<Guid, string>.Error(error2))
+            .And(Validated<Guid, string>.Error(error3))
+            .And(Validated<Guid, string>.Error(error4))
+            .And(Validated<Guid, string>.Error(error5))
+            .And(Validated<Guid, string>.Error(error6));
+
+        Assert.False(result.IsValid);
+        var errors = result.GetErrorOrThrow();
+        Assert.Contains(error1, errors);
+        Assert.Contains(error2, errors);
+        Assert.Contains(error3, errors);
+        Assert.Contains(error4, errors);
+        Assert.Contains(error5, errors);
+        Assert.Contains(error6, errors);
+    }
 }

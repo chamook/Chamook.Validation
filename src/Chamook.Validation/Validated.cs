@@ -129,7 +129,7 @@ public static class ValidatedExtensions
 
         var errors = new List<TError>();
         if (!first.IsValid)
-            errors.Concat(first.GetErrorOrThrow());
+            errors = errors.Concat(first.GetErrorOrThrow()).ToList();
         if (!second.IsValid)
             errors.Add(second.GetErrorOrThrow());
 
@@ -148,7 +148,7 @@ public static class ValidatedExtensions
         if (!first.IsValid)
             errors.Add(first.GetErrorOrThrow());
         if (!second.IsValid)
-            errors.Concat(second.GetErrorOrThrow());
+            errors = errors.Concat(second.GetErrorOrThrow()).ToList();
 
         return Validated<(A, B), List<TError>>.Error(errors);
     }
@@ -163,9 +163,9 @@ public static class ValidatedExtensions
 
         var errors = new List<TError>();
         if (!first.IsValid)
-            errors.Concat(first.GetErrorOrThrow());
+            errors = errors.Concat(first.GetErrorOrThrow()).ToList();
         if (!second.IsValid)
-            errors.Concat(second.GetErrorOrThrow());
+            errors = errors.Concat(second.GetErrorOrThrow()).ToList();
 
         return Validated<(A, B), List<TError>>.Error(errors);
     }
